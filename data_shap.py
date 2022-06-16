@@ -37,6 +37,11 @@ class object_model:
         elif dataset == "XGBoost":
             model = xgboost.train({"learning_rate": 0.01}, xgboost.DMatrix(self.X_train, label=self.y_train), 100)
             self.explainer = shap.TreeExplainer(model)
+        else:
+            log_reg = RandomForestClassifier(n_estimators=20)
+            log_reg.fit(self.X_train, self.y_train)
+            print("测试效果"+str(log_reg.score(self.X_train, self.y_train)))
+            self.explainer = shap.KernelExplainer(log_reg.predict_proba, self.X_train)
 
     def getRefWindows(self):
         X_ref = self.X_test[:self.windows_size]

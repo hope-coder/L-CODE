@@ -8,11 +8,11 @@ from data_shap import object_model
 from drift_detect import drift_detect
 
 if __name__ == '__main__':
-    window_size = 98
-    test_size = 0.2
+    window_size = 45
+    test_size = 0.3
     shap_class = 0
 
-    shap_model = object_model(window_size, test_size, shap_class=shap_class)
+    shap_model = object_model(window_size, test_size, shap_class=shap_class, dataset="da")
     X_train, shap = shap_model.getTrain()
     X_ref, shap_values = shap_model.getRefWindows()
     X_detect, shap_detect_values = shap_model.getDetectWindows()

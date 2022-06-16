@@ -9,9 +9,10 @@ import random
 import pandas as pd
 import shap
 from river import synth
+import numpy as np
 
 
-def getDateset(dataset="SEA", num=1000):
+def getDateset(dataset="SEA", num=500):
     if dataset == "SEA":
         train_data = normal_data()
         drift = drift_data()
@@ -24,9 +25,16 @@ def getDateset(dataset="SEA", num=1000):
         return X, y
     else:
         data = synth.RandomRBFDrift(seed_model=42, seed_sample=42, n_classes=4, n_features=4, n_centroids=20,
-                                       change_speed=0.87, n_drift_centroids=10)
+                                    change_speed=0.81, n_drift_centroids=0)
+        X_list = []
+        y_list = []
         for x, y in data.take(num):
-            print(x, y)
+            X_list.append(x)
+            y_list.append(y)
+        X = pd.DataFrame(X_list)
+        y = np.array(y_list)
+        return X, y
+
 
 def gen_y(X):
     y = []
