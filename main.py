@@ -8,7 +8,7 @@ from data_shap import object_model
 from drift_detect import drift_detect
 
 if __name__ == '__main__':
-    window_size = 40
+    window_size = 100
     test_size = 0.2
     shap_class = 1
 

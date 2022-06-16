@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # @Time    : 2022/6/15 11:06
 # @Author  : ZWP
-# @Desc    : 
+# @Desc    :
 # @File    : data_shap.py
 import xgboost
 import shap
@@ -24,10 +24,10 @@ def gen_y(X):
 
 
 def normal_data():
-    f1_1 = [random.uniform(0, 5) for _ in range(120)]
-    f1_2 = [random.uniform(5, 10) for _ in range(680)]
-    f2 = [random.uniform(0, 10) for _ in range(800)]
-    f3 = [random.uniform(0, 10) for _ in range(800)]
+    f1_1 = [random.uniform(0, 5) for _ in range(90)]
+    f1_2 = [random.uniform(5, 10) for _ in range(810)]
+    f2 = [random.uniform(0, 10) for _ in range(900)]
+    f3 = [random.uniform(0, 10) for _ in range(900)]
     f1 = f1_2 + f1_1
     random.shuffle(f1)
     tmp = list(zip(f1, f2, f3))
@@ -36,6 +36,24 @@ def normal_data():
     y = gen_y(df)
     df['y'] = y
     return df
+
+
+def drift_data():
+    drift_f1_1 = [random.uniform(0, 5) for _ in range(90)]
+    drift_f1_2 = [random.uniform(5, 10) for _ in range(10)]
+    drift_f2 = [random.uniform(0, 10) for _ in range(100)]
+    drift_f3_1 = [random.uniform(0, 5) for _ in range(10)]
+    drift_f3_2 = [random.uniform(5, 10) for _ in range(90)]
+    drift_f1 = drift_f1_2 + drift_f1_1
+    random.shuffle(drift_f1)
+    drift_f3 = drift_f3_2 + drift_f3_1
+    random.shuffle(drift_f3)
+    drift_temp = list(zip(drift_f1, drift_f2, drift_f3))
+    drift_x = [list(i) for i in drift_temp]
+    drift_Data = pd.DataFrame(drift_x)
+    drift_y = gen_y(drift_Data)
+    drift_Data['y'] = drift_y
+    return drift_Data
 
 
 class object_model:
@@ -59,7 +77,9 @@ class object_model:
             model = xgboost.train({"learning_rate": 0.01}, xgboost.DMatrix(self.X_train, label=self.y_train), 100)
             self.explainer = shap.TreeExplainer(model)
         else:
-            data = normal_data()
+            train_data = normal_data()
+            drift = drift_data()
+            data = pd.concat([train_data, drift], axis=0, ignore_index=True)
             X = data.iloc[:, 0:-1]
             y = data.iloc[:, -1]
             data_size = X.shape[0]
@@ -69,7 +89,7 @@ class object_model:
             self.y_train = y[:train_size]
             self.y_test = y[train_size:]
             test_size = data_size - train_size
-            if windows_size * 2 >= test_size:
+            if windows_size * 2 > test_size:
                 raise Exception("窗口太大")
             log_reg = RandomForestClassifier(n_estimators=20)
             log_reg.fit(self.X_train, self.y_train)
