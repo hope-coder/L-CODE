@@ -34,9 +34,11 @@ class object_model:
             log_reg = RandomForestClassifier(n_estimators=20)
             log_reg.fit(self.X_train, self.y_train)
             self.explainer = shap.KernelExplainer(log_reg.predict_proba, self.X_train)
+            print("测试效果" + str(log_reg.score(self.X_train, self.y_train)))
         elif dataset == "XGBoost":
             model = xgboost.train({"learning_rate": 0.01}, xgboost.DMatrix(self.X_train, label=self.y_train), 100)
             self.explainer = shap.TreeExplainer(model)
+            # print("测试效果" + str(xgboost.score))
         else:
             log_reg = RandomForestClassifier(n_estimators=20)
             log_reg.fit(self.X_train, self.y_train)

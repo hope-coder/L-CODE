@@ -54,7 +54,6 @@ class drift_detect:
                     key = int((feature_value - self.feature_min_values[feature]) / self.feature_interval[feature])
                     feature_dicts[key]["feature_value"].append(feature_value)
                     feature_dicts[key]["shap_value"].append(shap_values[case_index][feature_index])
-            print(feature_dicts)
             new_feature_dicts = {"bin_num": [], "size": [], "mean": [], "std": []}
 
             for key in feature_dicts:
@@ -76,8 +75,6 @@ class drift_detect:
             ref_stats["mean"].append(np.mean(shap_values[:][feature_index]))
             ref_stats["std"].append(np.std(shap_values[:][feature_index]))
         ref_stats = pd.DataFrame(ref_stats)
-        print(ref_stats)
-        print(ref_stats_table)
         return ref_stats, ref_stats_table
 
     def feat_selection(self, shap_values):
@@ -90,6 +87,7 @@ class drift_detect:
         feature_important = np.array(feature_important) / sum(feature_important)
         feature_important_zip = list(zip(self.columns, feature_important))
         feature_sorted = sorted(feature_important_zip, key=lambda x: x[1], reverse=True)
+        print("特征重要性排序：",feature_sorted)
         important_sum = 0
         for feature_name, important in feature_sorted:
             important_sum += important
@@ -129,13 +127,6 @@ class drift_detect:
                 detect_std):
             print("异常值警告!!! , 以下结论存疑:", end=" ")
             return False
-        # expected_s = expected_std * ((self.window_size / (self.window_size - 1)) ** 0.5)
-        # detect_s = detect_std * ((self.window_size / (self.window_size - 1)) ** 0.5)
-        # diff_s = ((expected_s ** 2) / self.window_size + (detect_s ** 2) / self.window_size) ** 0.5
-        # t_value = (expected_mean - detect_mean) / diff_s
-        # print("当前t值为" + str(t_value), end=" ")
-        # double_p_value = 2 * t.sf(t_value, 2 * self.window_size - 2)
-        # print("当前双样本p值为" + str(double_p_value), end=" ")
         t_value, p_value = stats.ttest_ind_from_stats(expected_mean, expected_std, self.window_size, detect_mean,
                                                       detect_std,
                                                       self.window_size)

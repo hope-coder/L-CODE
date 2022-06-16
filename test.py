@@ -10,6 +10,6 @@ import scipy.stats as stats
 import shap
 
 if __name__ == '__main__':
-    # stats.ttest_ind_from_stats()
+    print(stats.ttest_ind_from_stats(0.6, 0.1, 100, 0.5, 0.1, 100))
     X, y = shap.datasets.boston()
     print(t.sf(8, 80))

@@ -12,7 +12,7 @@ from river import synth
 import numpy as np
 
 
-def getDateset(dataset="SEA", num=500):
+def getDateset(dataset="SEA", num=1000):
     if dataset == "SEA":
         train_data = normal_data()
         drift = drift_data()
