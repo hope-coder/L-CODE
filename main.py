@@ -8,9 +8,9 @@ from data_shap import object_model
 from drift_detect import drift_detect
 
 if __name__ == '__main__':
-    window_size = 100
+    window_size = 98
     test_size = 0.2
-    shap_class = 1
+    shap_class = 0
 
     shap_model = object_model(window_size, test_size, shap_class=shap_class)
     X_train, shap = shap_model.getTrain()
