@@ -25,7 +25,7 @@ def getDateset(dataset="SEA", num=1000):
         return X, y
     else:
         data = synth.RandomRBFDrift(seed_model=42, seed_sample=42, n_classes=2, n_features=4, n_centroids=20,
-                                    change_speed=0.00001, n_drift_centroids=0)
+                                    change_speed=0.8, n_drift_centroids=10)
         X_list = []
         y_list = []
         for x, y in data.take(num):

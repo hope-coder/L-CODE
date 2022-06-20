@@ -72,6 +72,7 @@ class drift_detect:
             feature_dataframe = pd.DataFrame(new_feature_dicts)
             ref_stats_table[feature] = feature_dataframe
             ref_stats["feature"].append(feature)
+            # 重要bug，写的时候着急了，没怎么确定就直接用了
             ref_stats["mean"].append(np.mean(shap_values[:, feature_index]))
             ref_stats["std"].append(np.std(shap_values[:, feature_index]))
         ref_stats = pd.DataFrame(ref_stats)

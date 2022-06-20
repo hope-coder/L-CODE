@@ -12,7 +12,7 @@ def doTest(result):
 
     result_now = []
 
-    window_size = 99
+    window_size = 30
     test_size = 0.2
     shap_class = 0
     dataset = "fa"
@@ -21,7 +21,7 @@ def doTest(result):
     X_ref, shap_values = shap_model.getRefWindows()
     X_detect, shap_detect_values = shap_model.getDetectWindows()
 
-    detector = drift_detect(X_train=shap_model.X_train, window_size=window_size, alpha=0.001, threshold=0.8)
+    detector = drift_detect(X_train=shap_model.X_train, window_size=window_size, alpha=0.01, threshold=0.8)
     ref_stats, ref_stats_table = detector.statistic_dist(X_ref, shap_values)
     detect_stats, detect_stats_table = detector.statistic_dist(X_detect, shap_detect_values)
 
