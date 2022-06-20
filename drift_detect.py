@@ -137,3 +137,41 @@ class drift_detect:
             return True
         else:
             return False
+
+    def updated_ref_dist(self, ref_stats_table, cur_stats_table):
+        cur_size = cur_stats_table["size"]
+        ref_size = ref_stats_table["size"]
+
+        cur_mean = cur_stats_table["mean"]
+        ref_mean = ref_stats_table["mean"]
+
+        cur_std = cur_stats_table["std"]
+        ref_std = ref_stats_table["std"]
+
+        length = len(ref_stats_table)
+        updated_states_table = ref_stats_table.copy(deep=True)
+
+        for index in range(length):
+            updated_states_table.loc[index, ["size"]] = cur_size[index] + ref_size[index]
+
+            if updated_states_table["size"][index] == 0:
+                updated_states_table.loc[index, ["mean"]] = 0
+                updated_states_table.loc[index, ["std"]] = 0
+            else:
+
+                updated_states_table.loc[index, ["mean"]] = (ref_mean[index] * ref_size[index] + cur_mean[index] * cur_size[
+                    index]) / updated_states_table["size"][index]
+
+                left_formula = ((ref_mean[index] - updated_states_table["mean"][index]) ** 2 +
+                                ref_std[index] ** 2) * ref_size[index]
+
+                right_formula = ((cur_mean[index] - updated_states_table["mean"][index]) ** 2 +
+                                 cur_std[index] ** 2) * cur_size[index]
+
+                updated_states_table.loc[index, ["std"]] = ((left_formula + right_formula) / updated_states_table["size"][
+                    index]) ** 0.5
+        return updated_states_table
+
+    def test(self):
+        print(self.window_size)
+        print("dsada")

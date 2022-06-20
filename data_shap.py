@@ -20,6 +20,8 @@ class object_model:
         # 我们先训练好一个XGBoost model
         self.windows_size = windows_size
         self.shap_class = shap_class
+
+        # 数据准备
         X, y = dataset_generate.getDateset(dataset)
         data_size = X.shape[0]
         train_size = int(data_size * (1 - test))
@@ -27,6 +29,10 @@ class object_model:
         self.X_test = X[train_size:]
         self.y_train = y[:train_size]
         self.y_test = y[train_size:]
+
+        self.windows_number = 0
+        self.windows_max_number = int((data_size - train_size) / self.windows_size)
+
         test_size = data_size - train_size
         if windows_size * 2 >= test_size:
             raise Exception("窗口太大")
@@ -42,7 +48,7 @@ class object_model:
         else:
             log_reg = RandomForestClassifier(n_estimators=20)
             log_reg.fit(self.X_train, self.y_train)
-            print("测试效果"+str(log_reg.score(self.X_train, self.y_train)))
+            print("测试效果" + str(log_reg.score(self.X_train, self.y_train)))
             self.explainer = shap.KernelExplainer(log_reg.predict_proba, self.X_train)
 
     def getRefWindows(self):
@@ -62,6 +68,19 @@ class object_model:
             return X_detect, shap_values[self.shap_class]
         else:
             return X_detect, shap_values
+
+    def getNextWindows(self):
+        if self.windows_number < self.windows_max_number:
+            X_detect = self.X_test[(self.windows_size * self.windows_number): self.windows_size * (self.windows_number + 1)]
+            y_detect = self.y_test[(self.windows_size * self.windows_number): self.windows_size * (self.windows_number + 1)]
+            shap_values = self.explainer.shap_values(X_detect)
+            self.windows_number = self.windows_number + 1
+            if self.classification:
+                return X_detect, shap_values[self.shap_class]
+            else:
+                return X_detect, shap_values
+        else:
+            raise Exception("数据取完了，别拿了")
 
     def getTrain(self):
         shap_values = self.explainer.shap_values(self.X_train)
