@@ -24,8 +24,8 @@ def getDateset(dataset="SEA", num=1000):
         X, y = shap.datasets.boston()
         return X, y
     else:
-        data = synth.RandomRBFDrift(seed_model=42, seed_sample=42, n_classes=4, n_features=4, n_centroids=20,
-                                    change_speed=0.81, n_drift_centroids=0)
+        data = synth.RandomRBFDrift(seed_model=42, seed_sample=42, n_classes=2, n_features=4, n_centroids=20,
+                                    change_speed=0.00001, n_drift_centroids=0)
         X_list = []
         y_list = []
         for x, y in data.take(num):
@@ -37,7 +37,7 @@ def getDateset(dataset="SEA", num=1000):
 
 
 def gen_y(X):
-    y = []
+    y = []  
     for i in range(X.shape[0]):
         x = X.iloc[i,]
         if x[0] + x[1] > 7:

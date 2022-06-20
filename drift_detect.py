@@ -72,8 +72,8 @@ class drift_detect:
             feature_dataframe = pd.DataFrame(new_feature_dicts)
             ref_stats_table[feature] = feature_dataframe
             ref_stats["feature"].append(feature)
-            ref_stats["mean"].append(np.mean(shap_values[:][feature_index]))
-            ref_stats["std"].append(np.std(shap_values[:][feature_index]))
+            ref_stats["mean"].append(np.mean(shap_values[:, feature_index]))
+            ref_stats["std"].append(np.std(shap_values[:, feature_index]))
         ref_stats = pd.DataFrame(ref_stats)
         return ref_stats, ref_stats_table
 
@@ -87,7 +87,7 @@ class drift_detect:
         feature_important = np.array(feature_important) / sum(feature_important)
         feature_important_zip = list(zip(self.columns, feature_important))
         feature_sorted = sorted(feature_important_zip, key=lambda x: x[1], reverse=True)
-        print("特征重要性排序：",feature_sorted)
+        print("特征重要性排序：", feature_sorted)
         important_sum = 0
         for feature_name, important in feature_sorted:
             important_sum += important

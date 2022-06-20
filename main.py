@@ -13,9 +13,9 @@ def doTest(result):
     result_now = []
 
     window_size = 99
-    test_size = 0.3
+    test_size = 0.2
     shap_class = 0
-    dataset = "SEA"
+    dataset = "fa"
     shap_model = object_model(window_size, test_size, shap_class=shap_class, dataset=dataset)
     X_train, shap = shap_model.getTrain()
     X_ref, shap_values = shap_model.getRefWindows()
@@ -44,14 +44,14 @@ def doTest(result):
         else:
             print(str(feature) + "列未发生漂移")
             result_now.append(str(feature) + "列未发生漂移")
-        print("二次判断")
-        if detector.t_test(temp_ref_stats.loc[feature]["mean"], temp_ref_stats.loc[feature]["std"], temp_detect_stats.loc[feature]["mean"],
-                           temp_detect_stats.loc[feature]["std"], ):
-            print(str(feature) + "列发生了漂移")
-            result_now.append(str(feature) + "列发生了漂移")
-        else:
-            print(str(feature) + "列未发生漂移")
-            result_now.append(str(feature) + "列未发生漂移")
+        # print("二次判断")
+        # if detector.t_test(temp_ref_stats.loc[feature]["mean"], temp_ref_stats.loc[feature]["std"], temp_detect_stats.loc[feature]["mean"],
+        #                    temp_detect_stats.loc[feature]["std"], ):
+        #     print(str(feature) + "列发生了漂移")
+        #     result_now.append(str(feature) + "列发生了漂移")
+        # else:
+        #     print(str(feature) + "列未发生漂移")
+        #     result_now.append(str(feature) + "列未发生漂移")
 
     result.append(result_now)
 
