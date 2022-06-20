@@ -171,7 +171,3 @@ class drift_detect:
                 updated_states_table.loc[index, ["std"]] = ((left_formula + right_formula) / updated_states_table["size"][
                     index]) ** 0.5
         return updated_states_table
-
-    def test(self):
-        print(self.window_size)
-        print("dsada")
