@@ -12,12 +12,14 @@ from river import synth
 import numpy as np
 
 
-def getDateset(dataset="SEA", num=1000):
+def getDateset(dataset="SEA", num=1000, drift=None):
+    if drift is None:
+        drift = [900]
     if dataset == "SEA":
         window_size = 60
-        position = 1
+        position = 3
         train_size = 1 - 0.3
-        normal_size = int(num * train_size + position * window_size)
+        normal_size = int(drift[0])
         train_data = normal_data(normal_size)
         drift = drift_data(num - normal_size)
         data = pd.concat([train_data, drift], axis=0, ignore_index=True)
@@ -39,7 +41,7 @@ def getDateset(dataset="SEA", num=1000):
             stream=synth.RandomRBFDrift(seed_model=42, seed_sample=42, n_classes=2, n_features=4, n_centroids=20,
                                         change_speed=0, n_drift_centroids=0),
             drift_stream=synth.RandomRBFDrift(seed_model=42, seed_sample=42, n_classes=2, n_features=4, n_centroids=20,
-                                              change_speed=0.8, n_drift_centroids=10), position=900)
+                                              change_speed=0.8, n_drift_centroids=10), position=drift[0])
         X_list = []
         y_list = []
         for x, y in data.take(num):

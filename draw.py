@@ -40,7 +40,7 @@ class drift_visualization():
     def do_draw(self, feature):
         fig, ax = plt.subplots()
         ax.set_xlabel('index')
-        ax.set_ylabel('accuracy')
+        ax.set_ylabel('accuracy/p-value')
 
         x_alpha = [self.windows_number[0], self.windows_number[-1]]
 
@@ -53,8 +53,8 @@ class drift_visualization():
 
         ax.plot(x_alpha, y_alpha, lw=0.5, color="g", label="alpha判别")
         ax.plot(self.windows_number, self.accuracy, lw=2, label='accuracy')
-
-        ax.plot(self.windows_number, self.p_value[feature], lw=1, color="g", label=str(feature) + "_p_value")
+        for key in self.p_value.keys():
+            ax.plot(self.windows_number, self.p_value[key], lw=1, color="g", label=str(key) + "_p_value")
 
         ax.legend()
         plt.title("漂移检测图")

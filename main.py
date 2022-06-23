@@ -4,18 +4,28 @@
 # @Author  : ZWP
 # @Desc    : 代码问题，其中有不少的算法逻辑是通过列名索引的，因此算法要求输入的X变量必须为dataframe的格式
 # @File    : main.py
+import random
+import numpy as np
 from data_shap import object_model
 from draw import drift_visualization
 from drift_detect import drift_detect
 
+
+# 随机数固定
+def set_seed(seed=1024):
+    random.seed(seed)
+    np.random.seed(seed)
+
+
 if __name__ == '__main__':
+    set_seed(42)
 
     # 初始化相关参数
-    window_size = 60
+    window_size = 300
     test_size = 0.3
     shap_class = 0
     dataset = "SEA"
-    alpha = 0.1
+    alpha = 0.2
     threshold = 0.8
 
     # 构造可解释模型以及漂移检测器
@@ -83,6 +93,6 @@ if __name__ == '__main__':
         else:
             # 对单个特征的表格更新操作
             for feature in feature_select:
-                ref_stats_table[feature] = detector.updated_ref_dist(ref_stats_table[feature],
+                ref_stats_table[feature] = detector.updated_ref_dist_sample(ref_stats_table[feature],
                                                                             detect_stats_table[feature])
     vis.do_draw(feature_select[0])
