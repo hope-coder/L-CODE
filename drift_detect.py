@@ -134,9 +134,12 @@ class drift_detect:
         print("当前t值为" + str(t_value), end=" ")
         print("当前双样本p值为" + str(p_value), end=" ")
         if p_value < self.alpha:
-            return True
+            return p_value, True
         else:
-            return False
+            return p_value, False
+
+    def updated_ref_dist_sample(self, ref_stats_table, cur_stats_table):
+        return cur_stats_table
 
     def updated_ref_dist(self, ref_stats_table, cur_stats_table):
         cur_size = cur_stats_table["size"]
@@ -159,8 +162,8 @@ class drift_detect:
                 updated_states_table.loc[index, ["std"]] = 0
             else:
 
-                updated_states_table.loc[index, ["mean"]] = (ref_mean[index] * ref_size[index] + cur_mean[index] * cur_size[
-                    index]) / updated_states_table["size"][index]
+                updated_states_table.loc[index, ["mean"]] = (ref_mean[index] * ref_size[index] + cur_mean[index] *
+                                                             cur_size[index]) / updated_states_table["size"][index]
 
                 left_formula = ((ref_mean[index] - updated_states_table["mean"][index]) ** 2 +
                                 ref_std[index] ** 2) * ref_size[index]
@@ -168,6 +171,6 @@ class drift_detect:
                 right_formula = ((cur_mean[index] - updated_states_table["mean"][index]) ** 2 +
                                  cur_std[index] ** 2) * cur_size[index]
 
-                updated_states_table.loc[index, ["std"]] = ((left_formula + right_formula) / updated_states_table["size"][
-                    index]) ** 0.5
+                updated_states_table.loc[index, ["std"]] = ((left_formula + right_formula) /
+                                                            updated_states_table["size"][index]) ** 0.5
         return updated_states_table

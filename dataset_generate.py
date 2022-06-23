@@ -14,8 +14,12 @@ import numpy as np
 
 def getDateset(dataset="SEA", num=1000):
     if dataset == "SEA":
-        train_data = normal_data()
-        drift = drift_data()
+        window_size = 60
+        position = 1
+        train_size = 1 - 0.3
+        normal_size = int(num * train_size + position * window_size)
+        train_data = normal_data(normal_size)
+        drift = drift_data(num - normal_size)
         data = pd.concat([train_data, drift], axis=0, ignore_index=True)
         X = data.iloc[:, 0:-1]
         y = data.iloc[:, -1]
@@ -23,9 +27,19 @@ def getDateset(dataset="SEA", num=1000):
     elif dataset == "XGBoost":
         X, y = shap.datasets.boston()
         return X, y
+    elif dataset == 'electricity':
+        data = pd.read_csv('./dataset/electricity-normalized.csv')
+        data.drop('date', axis=1, inplace=True)
+        data = data.iloc[0:43200, ]
+        X = data.iloc[:, 0:-1]
+        y = data.iloc[:, -1]
+        return X, y
     else:
-        data = synth.RandomRBFDrift(seed_model=42, seed_sample=42, n_classes=2, n_features=4, n_centroids=20,
-                                    change_speed=0.8, n_drift_centroids=10)
+        data = synth.ConceptDriftStream(
+            stream=synth.RandomRBFDrift(seed_model=42, seed_sample=42, n_classes=2, n_features=4, n_centroids=20,
+                                        change_speed=0, n_drift_centroids=0),
+            drift_stream=synth.RandomRBFDrift(seed_model=42, seed_sample=42, n_classes=2, n_features=4, n_centroids=20,
+                                              change_speed=0.8, n_drift_centroids=10), position=900)
         X_list = []
         y_list = []
         for x, y in data.take(num):
@@ -37,7 +51,7 @@ def getDateset(dataset="SEA", num=1000):
 
 
 def gen_y(X):
-    y = []  
+    y = []
     for i in range(X.shape[0]):
         x = X.iloc[i,]
         if x[0] + x[1] > 7:
@@ -47,11 +61,11 @@ def gen_y(X):
     return y
 
 
-def normal_data():
-    f1_1 = [random.uniform(0, 5) for _ in range(90)]
-    f1_2 = [random.uniform(5, 10) for _ in range(810)]
-    f2 = [random.uniform(0, 10) for _ in range(900)]
-    f3 = [random.uniform(0, 10) for _ in range(900)]
+def normal_data(num):
+    f1_1 = [random.uniform(0, 5) for _ in range(int(num * 0.1))]
+    f1_2 = [random.uniform(5, 10) for _ in range(int(num * 0.9))]
+    f2 = [random.uniform(0, 10) for _ in range(num)]
+    f3 = [random.uniform(0, 10) for _ in range(num)]
     f1 = f1_2 + f1_1
     random.shuffle(f1)
     tmp = list(zip(f1, f2, f3))
@@ -62,12 +76,12 @@ def normal_data():
     return df
 
 
-def drift_data():
-    drift_f1_1 = [random.uniform(0, 5) for _ in range(90)]
-    drift_f1_2 = [random.uniform(5, 10) for _ in range(10)]
-    drift_f2 = [random.uniform(0, 10) for _ in range(100)]
-    drift_f3_1 = [random.uniform(0, 5) for _ in range(10)]
-    drift_f3_2 = [random.uniform(5, 10) for _ in range(90)]
+def drift_data(num):
+    drift_f1_1 = [random.uniform(0, 5) for _ in range(int(num * 0.9))]
+    drift_f1_2 = [random.uniform(5, 10) for _ in range(int(num * 0.1))]
+    drift_f2 = [random.uniform(0, 10) for _ in range(num)]
+    drift_f3_1 = [random.uniform(0, 5) for _ in range(int(num * 0.1))]
+    drift_f3_2 = [random.uniform(5, 10) for _ in range(int(num * 0.9))]
     drift_f1 = drift_f1_2 + drift_f1_1
     random.shuffle(drift_f1)
     drift_f3 = drift_f3_2 + drift_f3_1
