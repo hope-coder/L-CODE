@@ -51,7 +51,7 @@ class drift_visualization():
         plt.vlines(x=self.all_warning, ymin=0, ymax=0.5, colors='g', linestyles=':',
                    label='drift_detect')
 
-        ax.plot(x_alpha, y_alpha, 'linewidth', 1.5, color="g")
+        ax.plot(x_alpha, y_alpha, lw=0.5, color="g", label="alpha判别")
         ax.plot(self.windows_number, self.accuracy, lw=2, label='accuracy')
 
         ax.plot(self.windows_number, self.p_value[feature], lw=1, color="g", label=str(feature) + "_p_value")
