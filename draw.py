@@ -4,6 +4,7 @@
 # @Author  : ZWP
 # @Desc    : 
 # @File    : draw.py
+import numpy as np
 from matplotlib import pyplot as plt
 import seaborn as sns
 
@@ -38,6 +39,8 @@ class drift_visualization():
         self.drift.append(windows_number)
 
     def do_draw(self, feature):
+        mean_acc = np.mean(self.accuracy)
+        print("\n 平均准确率：", mean_acc)
         fig, ax = plt.subplots()
         ax.set_xlabel('index')
         ax.set_ylabel('accuracy/p-value')
@@ -54,7 +57,7 @@ class drift_visualization():
         ax.plot(x_alpha, y_alpha, lw=0.5, color="g", label="alpha判别")
         ax.plot(self.windows_number, self.accuracy, lw=2, label='accuracy')
         for key in self.p_value.keys():
-            ax.plot(self.windows_number, self.p_value[key], lw=1, color="g", label=str(key) + "_p_value")
+            ax.plot(self.windows_number, self.p_value[key], lw=1, color="g")
 
         ax.legend()
         plt.title("漂移检测图")
