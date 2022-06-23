@@ -21,7 +21,7 @@ if __name__ == '__main__':
     set_seed(42)
 
     # 初始化相关参数
-    window_size = 300
+    window_size = 100
     test_size = 0.3
     shap_class = 0
     dataset = "SEA"
