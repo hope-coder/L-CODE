@@ -21,10 +21,10 @@ class object_model:
         self.shap_class = shap_class
 
         # 设置漂移点
-        self.drift = [900]
+        self.drift = [9000]
 
         # 数据准备
-        X, y = dataset_generate.getDateset(dataset)
+        X, y = dataset_generate.getDateset(dataset, 10000, self.drift)
         data_size = X.shape[0]
         self.train_size = int(data_size * (1 - test))
         self.X_train = X[:self.train_size]
@@ -43,6 +43,7 @@ class object_model:
             log_reg = RandomForestClassifier(n_estimators=20)
             self.model = log_reg.fit(self.X_train, self.y_train)
             self.explainer = shap.KernelExplainer(log_reg.predict_proba, self.X_train)
+            self.explainer = shap.TreeExplainer(log_reg)
             print("测试效果" + str(log_reg.score(self.X_train, self.y_train)))
         elif dataset == "XGBoost":
 
@@ -51,11 +52,11 @@ class object_model:
             # print("测试效果" + str(xgboost.score))
         else:
 
-
             log_reg = RandomForestClassifier(n_estimators=20)
             self.model = log_reg.fit(self.X_train, self.y_train)
             print("测试效果" + str(log_reg.score(self.X_train, self.y_train)))
             self.explainer = shap.KernelExplainer(log_reg.predict_proba, self.X_train)
+            self.explainer = shap.TreeExplainer(log_reg)
 
     def getRefWindows(self):
         X_ref = self.X_test[:self.windows_size]
@@ -89,7 +90,8 @@ class object_model:
             shap_values = self.explainer.shap_values(X_detect)
             self.windows_number = self.windows_number + 1
             acc = self.model.score(X_detect, y_detect)
-            print("窗口号：", self.windows_number, "当前窗口结果：", acc)
+            print("窗口号：", self.windows_number, "数据段：", self.train_size + self.windows_size * self.windows_number,
+                  self.train_size + self.windows_size * (self.windows_number + 1), "当前窗口结果：", acc)
             if self.classification:
                 return False, X_detect, shap_values[self.shap_class], is_drift, acc
             else:

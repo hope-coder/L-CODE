@@ -5,7 +5,6 @@
 # @Desc    : 
 # @File    : drift_detect.py
 import math
-from scipy.stats import t
 import scipy.stats as stats
 import pandas as pd
 import numpy as np
@@ -41,7 +40,7 @@ class drift_detect:
         for feature_index, feature in enumerate(columns):
             feature_values = x[feature]
             feature_dicts = dict(
-                zip(range(self.bin_num), [{"feature_value": [], "shap_value": []} for i in range(self.bin_num)]))
+                zip(range(self.bin_num), [{"feature_value": [], "shap_value": []} for _ in range(self.bin_num)]))
             for case_index, feature_value in enumerate(feature_values):
                 if feature_value <= self.feature_min_values[feature]:
                     feature_dicts[0]["feature_value"].append(feature_value)
