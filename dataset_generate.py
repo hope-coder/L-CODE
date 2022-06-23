@@ -14,12 +14,8 @@ import numpy as np
 
 def getDateset(dataset="SEA", num=1000):
     if dataset == "SEA":
-        window_size = 60
-        position = 1
-        train_size = 1 - 0.3
-        normal_size = int(num * train_size + position * window_size)
-        train_data = normal_data(normal_size)
-        drift = drift_data(num - normal_size)
+        train_data = normal_data()
+        drift = drift_data()
         data = pd.concat([train_data, drift], axis=0, ignore_index=True)
         X = data.iloc[:, 0:-1]
         y = data.iloc[:, -1]
@@ -34,6 +30,21 @@ def getDateset(dataset="SEA", num=1000):
         X = data.iloc[:, 0:-1]
         y = data.iloc[:, -1]
         return X, y
+    elif dataset == 'phishing':
+        df = pd.read_csv('./dataset/phishing.csv')
+        X = df.iloc[:, 1:-1]
+        y = df.iloc[:, -1]
+        data_X = df.iloc[:, 1:-1]
+        columns = list(X.columns)
+        for i in range(X.shape[1]):
+            if len(set(X.iloc[:, i])) == 2:
+                continue
+            else:
+                dummies = pd.get_dummies(X[columns[i]], prefix=columns[i])
+                data_X.drop(columns=columns[i], axis=1, inplace=True)
+                data_X = data_X.join(dummies)
+        data_X[data_X < 0] = 0
+        return data_X.iloc[0:11000, ], y.iloc[0:11000, ]
     else:
         data = synth.ConceptDriftStream(
             stream=synth.RandomRBFDrift(seed_model=42, seed_sample=42, n_classes=2, n_features=4, n_centroids=20,
