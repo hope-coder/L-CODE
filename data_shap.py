@@ -41,7 +41,8 @@ class object_model:
         if dataset == "SEA":
 
             log_reg = RandomForestClassifier(n_estimators=20)
-            self.model = log_reg.fit(self.X_train, self.y_train)
+            log_reg.fit(self.X_train, self.y_train)
+            self.model = log_reg
             self.explainer = shap.KernelExplainer(log_reg.predict_proba, self.X_train)
             self.explainer = shap.TreeExplainer(log_reg)
             print("测试效果" + str(log_reg.score(self.X_train, self.y_train)))
@@ -53,7 +54,8 @@ class object_model:
         else:
 
             log_reg = RandomForestClassifier(n_estimators=20)
-            self.model = log_reg.fit(self.X_train, self.y_train)
+            log_reg.fit(self.X_train, self.y_train)
+            self.model = log_reg
             print("测试效果" + str(log_reg.score(self.X_train, self.y_train)))
             self.explainer = shap.KernelExplainer(log_reg.predict_proba, self.X_train)
             self.explainer = shap.TreeExplainer(log_reg)
@@ -88,10 +90,12 @@ class object_model:
             y_detect = self.y_test[
                        (self.windows_size * self.windows_number): self.windows_size * (self.windows_number + 1)]
             shap_values = self.explainer.shap_values(X_detect)
-            self.windows_number = self.windows_number + 1
             acc = self.model.score(X_detect, y_detect)
             print("窗口号：", self.windows_number, "数据段：", self.train_size + self.windows_size * self.windows_number,
                   self.train_size + self.windows_size * (self.windows_number + 1), "当前窗口结果：", acc)
+
+            # 下一窗口应该取的数据段
+            self.windows_number = self.windows_number + 1
             if self.classification:
                 return False, X_detect, shap_values[self.shap_class], is_drift, acc
             else:
@@ -106,3 +110,12 @@ class object_model:
             return self.X_train, shap_values[self.shap_class]
         else:
             return self.X_train, shap_values
+
+    def reTrain(self, windows_number):
+        X_retrain = self.X_test[
+                    (self.windows_size * windows_number): self.windows_size * (windows_number + 1)]
+        y_retrain = self.y_test[
+                    (self.windows_size * windows_number): self.windows_size * (windows_number + 1)]
+        self.model.fit(X_retrain, y_retrain)
+        self.explainer = shap.TreeExplainer(model=self.model)
+        return X_retrain, self.explainer.shap_values(X_retrain)[self.shap_class]

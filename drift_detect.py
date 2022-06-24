@@ -137,7 +137,8 @@ class drift_detect:
         else:
             return p_value, False
 
-    def updated_ref_dist_sample(self, ref_stats_table, cur_stats_table):
+    def updated_ref_dist_drift(self, ref_stats_table, cur_stats_table):
+
         return cur_stats_table
 
     def updated_ref_dist(self, ref_stats_table, cur_stats_table):

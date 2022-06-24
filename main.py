@@ -21,12 +21,12 @@ if __name__ == '__main__':
     set_seed(42)
 
     # 初始化相关参数
-    window_size = 100
-    test_size = 0.3
+    window_size = 1440
+    test_size = 0.9
     shap_class = 0
-    dataset = "SEA"
-    alpha = 0.2
-    threshold = 0.8
+    dataset = "electricity"
+    alpha = 0.001
+    threshold = 0.99
 
     # 构造可解释模型以及漂移检测器
     shap_model = object_model(window_size, test_size, shap_class=shap_class, dataset=dataset)
@@ -51,11 +51,15 @@ if __name__ == '__main__':
             break
         detect_stats, detect_stats_table = detector.statistic_dist(X_detect, shap_detect_values)
 
+        # 当前检测窗口的窗口号
+        window_number_detect = shap_model.windows_number - 1
+
         # 将数据保存到绘图类中
-        vis.add_acc(shap_model.windows_number, acc)
+        vis.add_acc(window_number_detect, acc)
 
         if is_drift:
-            vis.add_drift(shap_model.windows_number)
+            # 上一次取的数据的窗口号
+            vis.add_drift(window_number_detect)
 
         # 设置一下索引列为特证名，后面好找
         temp_detect_stats = detect_stats.set_index("feature")
@@ -83,16 +87,18 @@ if __name__ == '__main__':
             else:
                 print(str(feature) + "列未发生漂移")
 
-            vis.add_p_value(shap_model.windows_number, feature, p_value, drift_warning)
-
+            vis.add_p_value(window_number_detect, feature, p_value, drift_warning)
         # 如果检测到漂移就简单更新，未检测到就积累更新
         if windows_drift:
-            for feature in feature_select:
-                ref_stats_table[feature] = detector.updated_ref_dist_sample(ref_stats_table[feature],
-                                                                            detect_stats_table[feature])
+            X_retrain,  X_retrain_shap = shap_model.reTrain(window_number_detect)
+            ref_stats, ref_stats_table = detector.statistic_dist(X_retrain, X_retrain_shap)
+
+            # for feature in feature_select:
+            #     ref_stats_table[feature] = detector.updated_ref_dist_drift(ref_stats_table[feature],
+            #                                                                detect_stats_table[feature])
         else:
             # 对单个特征的表格更新操作
             for feature in feature_select:
-                ref_stats_table[feature] = detector.updated_ref_dist_sample(ref_stats_table[feature],
-                                                                            detect_stats_table[feature])
+                ref_stats_table[feature] = detector.updated_ref_dist(ref_stats_table[feature],
+                                                                     detect_stats_table[feature])
     vis.do_draw(feature_select[0])
