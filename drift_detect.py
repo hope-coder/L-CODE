@@ -13,7 +13,8 @@ import numpy as np
 class drift_detect:
     # 在漂移检测之间首先要获取训练集的上下界，漂移检测只在上下界的范围内进行
     # 超出上下界后是异常值检测的工作了。
-    def __init__(self, X_train, window_size, threshold=0.99, alpha=0.01):
+    def __init__(self, X_train, window_size, threshold=0.99, alpha=0.01, external=False):
+        self.external=external
         self.alpha = alpha
         self.threshold = threshold
         self.window_size = window_size
